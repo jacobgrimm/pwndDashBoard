@@ -65,6 +65,6 @@ The deployment script will:
 
 ### **Add-More Credentials**
 
-1. Log on to AWS Console and navigate to the RAW DATA S3 bucket created by the deploy script, it should have a long name such as
+1. Log on to AWS Console and navigate to the RAW DATA S3 bucket created by the deploy script, it should have a long name such as pwnd-s3-bucket-creator-prod-pwndec2codebucket-irxvs9luvtna
 2. On the S3 bucket, we have a create object trigger for files created with a prefix of uploads/
-3. Place the file in the
+3. Place the file in the '''/uploads'''
