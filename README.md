@@ -69,12 +69,10 @@ Success! Your site should be available at http://pwnd-s3-bucket-creator-prod-sta
 
 ### **Add Another Credentials File**
 
-1. Log on to AWS Console and navigate to the RAW DATA S3 bucket created by the deploy script, it should have a long name such as pwnd-s3-bucket-creator-prod-pwndec2codebucket-irxvs9luvtna. In the cloudformation stack - Pwnd-s3-Bucket-Creator. It will be the PwndRawDataBucket. ![image](https://github.com/user-attachments/assets/d21ee17e-c6b2-4610-817a-3d8b745f3dcb)
-
-2. On the S3 bucket, we have a create object trigger for files created with a prefix of `uploads/`
-3. Ensure the file is in the same format as the challenge_creds.txt, if not the data will not enter the database
-4. Place the file in the `uploads/
-5. From here the s3 trigger will run and the contents of the file, if valid will be uploaded to the database.
+1. Log on to AWS Console and navigate to the RAW DATA S3 bucket created by the deploy script. You can find it in  the cloudformation stack - Pwnd-s3-Bucket-Creator. It will be the PwndRawDataBucket. ![image](https://github.com/user-attachments/assets/d21ee17e-c6b2-4610-817a-3d8b745f3dcb) (On this bucket we have created an S3 trigger that whenever a file contains the uploads/ prefix, it will trigger a lambda to place the data in the DB.
+2. Ensure your desired file is in the same format as the challenge_creds.txt, if not the data will not enter the database
+3. Upload the file with the prefix `uploads/` 
+4. From here the lambda will run and the contents of the file, if valid, will be uploaded to the database.
 
 
 ## **API Usage**
