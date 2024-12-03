@@ -1,0 +1,4 @@
+const API_ENDPOINT =
+  "https://4iisufhzya.execute-api.us-east-2.amazonaws.com/prod";
+
+export default API_ENDPOINT;

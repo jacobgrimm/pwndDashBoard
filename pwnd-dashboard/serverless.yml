@@ -1,0 +1,15 @@
+service: pwnd-dashboard
+
+provider:
+  name: aws
+  stage: prod
+  region: us-east-2
+
+plugins:
+  - serverless-finch # Optional for additional static site capabilities
+
+custom:
+  # Custom variables for reuse
+  client:
+    bucketName: ${env:STATIC_WEBSITE_BUCKET_NAME}
+    distributionFolder: ./dist

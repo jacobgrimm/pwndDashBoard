@@ -1,0 +1,241 @@
+service: Pwnd-Backend
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: us-east-2
+  stage: prod
+
+  environment:
+    CREDS_TABLE: !Ref CredentialsTable
+  iam:
+    role: lambdaProcessRole
+
+functions:
+  ingest_data:
+    handler: lambdas/ingest_data.lambda_handler
+    timeout: 500
+    events:
+      - s3:
+          bucket: ${param:dataBucketName} # Replace with your bucket name
+          event: s3:ObjectCreated:* # Trigger for object creation
+          rules:
+            - prefix: uploads/ # Optional: Only triggers for files in this path
+          existing: true
+  proxy:
+    handler: handler.dummy # Dummy handler, used for the HTTP Proxy integration
+    events:
+      - http:
+          path: /query
+          method: GET
+          integration: http-proxy
+          cors: true
+          request:
+            uri: ${self:custom.ec2InstanceUri} # Proxy all paths
+
+resources:
+  Resources:
+    lambdaProcessRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: lambdaDataProcessRole
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          - PolicyName: CredsTablePolicy
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - dynamodb:*
+                  Resource: !GetAtt CredentialsTable.Arn
+          - PolicyName: s3Policy
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "s3:*"
+                  Resource: "*"
+
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    ec2FastAPIRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: ec2FastAPIRole
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Service:
+                  - ec2.amazonaws.com
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          - PolicyName: EC2ReadDB
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - dynamodb:*
+                  Resource: !GetAtt CredentialsTable.Arn
+          - PolicyName: EC2AccessS3
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - s3:*
+                  Resource: "*"
+
+    CredentialsTable:
+      Type: "AWS::DynamoDB::GlobalTable"
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+          - AttributeName: domain
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: domain-index
+            KeySchema:
+              - AttributeName: domain
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        Replicas:
+          - Region: ${self:custom.region}
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.tableName}
+
+    FastApiSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Allow HTTP traffic to FastAPI
+        VpcId: !Ref VPC # Attach to the default VPC
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 8000
+            ToPort: 8000
+            CidrIp: 0.0.0.0/0 # Open to the world (restrict this in production)
+          - IpProtocol: tcp
+            FromPort: 22
+            ToPort: 22
+            CidrIp: 0.0.0.0/0 # Open to the world (restrict this in production)
+    InternetGateway:
+      Type: AWS::EC2::InternetGateway
+      Properties:
+        Tags:
+          - Key: Name
+            Value: MyInternetGateway
+
+    # Attach Internet Gateway to VPC
+    VPCGatewayAttachment:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId: !Ref VPC
+        InternetGatewayId: !Ref InternetGateway
+
+    PublicRouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref VPC
+        Tags:
+          - Key: Name
+            Value: PublicRouteTable
+
+    SubnetRouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PublicSubnet
+        RouteTableId: !Ref PublicRouteTable
+
+    DefaultRoute:
+      Type: AWS::EC2::Route
+      Properties:
+        RouteTableId: !Ref PublicRouteTable
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId: !Ref InternetGateway
+
+    EC2KeyPair:
+      Type: AWS::EC2::KeyPair
+      Properties:
+        KeyName: EC2KeyPairFASTAPI
+
+    # EC2 Instance
+    FastApiInstance:
+      Type: AWS::EC2::Instance
+      Properties:
+        InstanceType: t2.micro # free tier ec2 instance
+        KeyName: !Ref EC2KeyPair
+        ImageId: ami-0c80e2b6ccb9ad6d1
+        Role:
+        SecurityGroupIds:
+          - !Ref FastApiSecurityGroup
+        SubnetId: !Ref PublicSubnet # Reference to a public subnet
+        Tags:
+          - Key: Name
+            Value: FastApiEC2Instance
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            yum update -y
+            cd /home/ec2-user
+            mkdir app
+            aws s3 cp s3://${param:codeBucketName} /home/ec2-user/app --recursive
+            cd app
+            echo "${self:custom.tableName}" > db_name.txt
+            sudo yum install -y python3-pip
+            pip3 install fastapi uvicorn boto3
+            nohup uvicorn app:app --host 0.0.0.0 --port 8000 > /home/ec2-user/app/server.log 2>&1 &
+
+        IamInstanceProfile: !Ref Ec2InstanceProfile
+    Ec2InstanceProfile:
+      Type: "AWS::IAM::InstanceProfile"
+      Properties:
+        Path: /
+        Roles:
+          - !Ref ec2FastAPIRole
+
+    # Outputs for EC2 Public IP
+    EC2InstancePublicIP:
+      Type: AWS::EC2::EIP
+      Properties:
+        InstanceId: !Ref FastApiInstance
+
+    # Subnet for the EC2 Instance
+    PublicSubnet:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        CidrBlock: 10.0.1.0/24
+        MapPublicIpOnLaunch: true
+        AvailabilityZone: us-east-2a
+    VPC:
+      Type: AWS::EC2::VPC
+      Properties:
+        CidrBlock: 10.0.0.0/16
+        EnableDnsSupport: true
+        EnableDnsHostnames: true
+
+custom:
+  region: "us-east-2"
+  ec2InstanceUri: !Sub "http://${EC2InstancePublicIP}:8000/query"
+  tableName: Credentials-Table-${self:custom.region}
+
+plugins:
+  - serverless-python-requirements

@@ -1,0 +1,159 @@
+{
+  "/home/jacob/Documents/SpyCloud Code Challenge/pwnd-dashboard": {
+    "versionSfCore": null,
+    "versionFramework": "4.4.13",
+    "isWithinCompose": false,
+    "isCompose": false,
+    "composeOrgName": null,
+    "composeResolverProviders": {
+      "default-aws-credential-resolver": "<REDACTED>",
+      "env": {
+        "instance": {
+          "credentials": "<REDACTED>",
+          "serviceConfigFile": {
+            "service": "pwnd-dashboard",
+            "provider": {
+              "name": "aws",
+              "stage": "prod",
+              "region": "us-east-2",
+              "versionFunctions": true
+            },
+            "plugins": [
+              "serverless-finch"
+            ],
+            "custom": {
+              "client": {
+                "bucketName": "pwnd-s3-bucket-creator-prod-staticsitebucket-ymlwp5n3ykle",
+                "distributionFolder": "./dist"
+              }
+            }
+          },
+          "configFileDirPath": "/home/jacob/Documents/SpyCloud Code Challenge/pwnd-dashboard",
+          "config": {
+            "type": "env"
+          },
+          "options": {
+            "confirm": false
+          },
+          "stage": "prod",
+          "dashboard": null,
+          "logger": {
+            "namespace": "s:core:resolver:env",
+            "prefix": null,
+            "prefixColor": null
+          },
+          "_credentialsPromise": "<REDACTED>"
+        },
+        "resolvers": {}
+      },
+      "sls": {
+        "instance": {
+          "credentials": "<REDACTED>",
+          "serviceConfigFile": {
+            "service": "pwnd-dashboard",
+            "provider": {
+              "name": "aws",
+              "stage": "prod",
+              "region": "us-east-2",
+              "versionFunctions": true
+            },
+            "plugins": [
+              "serverless-finch"
+            ],
+            "custom": {
+              "client": {
+                "bucketName": "pwnd-s3-bucket-creator-prod-staticsitebucket-ymlwp5n3ykle",
+                "distributionFolder": "./dist"
+              }
+            }
+          },
+          "configFileDirPath": "/home/jacob/Documents/SpyCloud Code Challenge/pwnd-dashboard",
+          "config": {
+            "type": "sls"
+          },
+          "options": {
+            "confirm": false
+          },
+          "stage": "prod",
+          "dashboard": null,
+          "logger": {
+            "namespace": "s:core:resolver:sls",
+            "prefix": null,
+            "prefixColor": null
+          },
+          "_credentialsPromise": "<REDACTED>"
+        },
+        "resolvers": {}
+      }
+    },
+    "composeServiceName": null,
+    "servicePath": "/home/jacob/Documents/SpyCloud Code Challenge/pwnd-dashboard",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "pwnd-dashboard",
+      "provider": {
+        "name": "aws",
+        "stage": "prod",
+        "region": "us-east-2",
+        "versionFunctions": true
+      },
+      "plugins": [
+        "serverless-finch"
+      ],
+      "custom": {
+        "client": {
+          "bucketName": "pwnd-s3-bucket-creator-prod-staticsitebucket-ymlwp5n3ykle",
+          "distributionFolder": "./dist"
+        }
+      }
+    },
+    "serviceRawFile": "service: pwnd-dashboard\n\nprovider:\n  name: aws\n  stage: prod\n  region: us-east-2\n\nplugins:\n  - serverless-finch # Optional for additional static site capabilities\n\ncustom:\n  # Custom variables for reuse\n  client:\n    bucketName: ${env:STATIC_WEBSITE_BUCKET_NAME}\n    distributionFolder: ./dist\n",
+    "command": [
+      "client",
+      "deploy"
+    ],
+    "options": {
+      "confirm": false
+    },
+    "error": null,
+    "params": {},
+    "machineId": "27b38b587735dafe7934ebf3ae39eb7a",
+    "stage": "prod",
+    "accessKeyV2": "<REDACTED>",
+    "accessKeyV1": "<REDACTED>",
+    "orgId": "df0b1ac6-43be-4ddb-beb4-17520ad56def",
+    "orgName": "jacob223",
+    "userId": "dzb0yyN6gmPsgS7v00",
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "userName": "jacob223",
+    "subscription": null,
+    "userEmail": "jacobgrimm@ymail.com",
+    "serviceProviderAwsRegion": "us-east-2",
+    "serviceProviderAwsCredentials": "<REDACTED>",
+    "serviceProviderAwsAccountId": "904233123757",
+    "projectType": "traditional",
+    "versionSf": "4.4.13",
+    "serviceProviderAwsCfStackName": "pwnd-dashboard-prod",
+    "integrations": {},
+    "serviceUniqueId": null,
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:us-east-2:329599638939:stack/pwnd-dashboard-prod/fdedae10-b135-11ef-8c44-02ea1aa5c5e1",
+    "serviceProviderAwsCfStackCreated": "2024-12-03T05:18:12.423Z",
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": "CREATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-us-east-2-90a4c19c-b2c6",
+        "ExportName": "sls-pwnd-dashboard-prod-ServerlessDeploymentBucketName"
+      }
+    ]
+  }
+}

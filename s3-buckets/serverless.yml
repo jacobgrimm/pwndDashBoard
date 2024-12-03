@@ -1,0 +1,47 @@
+service: Pwnd-S3-Bucket-Creator
+
+provider:
+  name: aws
+  region: us-east-2
+  stage: prod
+
+resources:
+  Resources:
+    pwndEc2CodeBucket:
+      Type: "AWS::S3::Bucket"
+      Properties:
+        AccessControl: Private
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+    pwndRawDataBucket:
+      Type: "AWS::S3::Bucket"
+      Properties:
+        AccessControl: Private
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+        # S3 Bucket for Static Website Hosting
+    staticSiteBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+
+  Outputs:
+    PwndCodeBucket:
+      Description: The name of the S3 bucket where API Code is kept
+      Value: !Ref pwndEc2CodeBucket
+    PwndRawDataBucket:
+      Description: The name of the S3 bucket where Credentials files can be uploaded to be added to Database
+      Value: !Ref pwndRawDataBucket
+    StaticSiteBucket:
+      Description: The name of the S3 bucket where dashBoard is hosted
+      Value: !Ref staticSiteBucket

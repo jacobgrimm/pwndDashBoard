@@ -1,0 +1,1250 @@
+{
+  "service": {
+    "service": "Pwnd-Backend",
+    "serviceObject": {
+      "name": "Pwnd-Backend"
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "python3.10",
+      "region": "us-east-2",
+      "stage": "prod",
+      "environment": {
+        "CREDS_TABLE": {
+          "Ref": "CredentialsTable"
+        }
+      },
+      "iam": {
+        "role": "lambdaProcessRole"
+      },
+      "versionFunctions": true,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "IngestUnderscoredataLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/Pwnd-Backend-prod-ingest_data"
+            }
+          },
+          "ProxyLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/Pwnd-Backend-prod-proxy"
+            }
+          },
+          "IngestUnderscoredataLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-us-east-2-892f4b5c-f3a5",
+                "S3Key": "serverless/Pwnd-Backend/prod/1733213700634-2024-12-03T08:15:00.634Z/Pwnd-Backend.zip"
+              },
+              "Handler": "lambdas/ingest_data.lambda_handler",
+              "Runtime": "python3.10",
+              "FunctionName": "Pwnd-Backend-prod-ingest_data",
+              "MemorySize": 1024,
+              "Timeout": 500,
+              "Environment": {
+                "Variables": {
+                  "CREDS_TABLE": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CREDS_TABLE\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "lambdaProcessRole",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "IngestUnderscoredataLogGroup",
+              "lambdaProcessRole"
+            ]
+          },
+          "ProxyLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-us-east-2-892f4b5c-f3a5",
+                "S3Key": "serverless/Pwnd-Backend/prod/1733213700634-2024-12-03T08:15:00.634Z/Pwnd-Backend.zip"
+              },
+              "Handler": "handler.dummy",
+              "Runtime": "python3.10",
+              "FunctionName": "Pwnd-Backend-prod-proxy",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "CREDS_TABLE": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CREDS_TABLE\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "lambdaProcessRole",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "ProxyLogGroup",
+              "lambdaProcessRole"
+            ]
+          },
+          "IngestUnderscoredataLambdaVersionA0BnlAE0NIFtKZXwZysr13aFMg2SElMXZOBhk7Rvao": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "IngestUnderscoredataLambdaFunction"
+              },
+              "CodeSha256": "9c/g9URdJ2F/9SmwPUN0D5XTXmJNfIsHmAxEx49hVUg="
+            }
+          },
+          "ProxyLambdaVersionkaxR7pj0IuQcHjZfYXbTyltQDLZbyjdbZbC6PBMH8ic": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "ProxyLambdaFunction"
+              },
+              "CodeSha256": "9c/g9URdJ2F/9SmwPUN0D5XTXmJNfIsHmAxEx49hVUg="
+            }
+          },
+          "IngestUnderscoredataCustomS31": {
+            "Type": "Custom::S3",
+            "Version": "1.0",
+            "DependsOn": [
+              "IngestUnderscoredataLambdaFunction",
+              "CustomDashresourceDashexistingDashs3LambdaFunction"
+            ],
+            "Properties": {
+              "ServiceToken": {
+                "Fn::GetAtt": [
+                  "CustomDashresourceDashexistingDashs3LambdaFunction",
+                  "Arn"
+                ]
+              },
+              "FunctionName": "Pwnd-Backend-prod-ingest_data",
+              "BucketName": "pwnd-s3-bucket-creator-prod-pwndrawdatabucket-vysphgm2oxcn",
+              "BucketConfigs": [
+                {
+                  "Event": "s3:ObjectCreated:*",
+                  "Rules": [
+                    {
+                      "Prefix": "uploads/"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "IamRoleCustomResourcesLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "prod",
+                        "Pwnd-Backend",
+                        "custom-resources-lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup",
+                          "logs:TagResource"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/Pwnd-Backend-prod*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/Pwnd-Backend-prod*:*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Resource": {
+                          "Fn::Join": [
+                            ":",
+                            [
+                              "arn",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              "s3",
+                              "",
+                              "",
+                              "pwnd-s3-bucket-creator-prod-pwndrawdatabucket-vysphgm2oxcn"
+                            ]
+                          ]
+                        },
+                        "Action": [
+                          "s3:PutBucketNotification",
+                          "s3:GetBucketNotification"
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Resource": {
+                          "Fn::Join": [
+                            ":",
+                            [
+                              "arn",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              "lambda",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              {
+                                "Ref": "AWS::AccountId"
+                              },
+                              "function",
+                              "*"
+                            ]
+                          ]
+                        },
+                        "Action": [
+                          "lambda:AddPermission",
+                          "lambda:RemovePermission"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "CustomDashresourceDashexistingDashs3LambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-us-east-2-892f4b5c-f3a5",
+                "S3Key": "serverless/Pwnd-Backend/prod/1733213700634-2024-12-03T08:15:00.634Z/custom-resources.zip"
+              },
+              "FunctionName": "Pwnd-Backend-prod-custom-resource-existing-s3",
+              "Handler": "s3/handler.handler",
+              "MemorySize": 1024,
+              "Runtime": "nodejs20.x",
+              "Timeout": 180,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleCustomResourcesLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "IamRoleCustomResourcesLambdaExecution",
+              "CustomDashresourceDashexistingDashs3LogGroup"
+            ]
+          },
+          "CustomDashresourceDashexistingDashs3LogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/Pwnd-Backend-prod-custom-resource-existing-s3"
+            }
+          },
+          "ApiGatewayRestApi": {
+            "Type": "AWS::ApiGateway::RestApi",
+            "Properties": {
+              "Name": "prod-Pwnd-Backend",
+              "EndpointConfiguration": {
+                "Types": [
+                  "EDGE"
+                ]
+              },
+              "Policy": ""
+            }
+          },
+          "ApiGatewayResourceQuery": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "query",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodQueryOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceQuery"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodQueryGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceQuery"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "GET",
+                "Type": "HTTP_PROXY",
+                "Uri": {
+                  "Fn::Sub": "http://${EC2InstancePublicIP}:8000/query"
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "ProxyLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayDeployment1733213678436": {
+            "Type": "AWS::ApiGateway::Deployment",
+            "Properties": {
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "StageName": "prod"
+            },
+            "DependsOn": [
+              "ApiGatewayMethodQueryOptions",
+              "ApiGatewayMethodQueryGet"
+            ]
+          },
+          "ProxyLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "ProxyLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "lambdaProcessRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "RoleName": "lambdaDataProcessRole",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": "CredsTablePolicy",
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "dynamodb:*"
+                        ],
+                        "Resource": {
+                          "Fn::GetAtt": [
+                            "CredentialsTable",
+                            "Arn"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "PolicyName": "s3Policy",
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "s3:*"
+                        ],
+                        "Resource": "*"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "ManagedPolicyArns": [
+                "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            }
+          },
+          "ec2FastAPIRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "RoleName": "ec2FastAPIRole",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "ec2.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": "EC2ReadDB",
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "dynamodb:*"
+                        ],
+                        "Resource": {
+                          "Fn::GetAtt": [
+                            "CredentialsTable",
+                            "Arn"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "PolicyName": "EC2AccessS3",
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "s3:*"
+                        ],
+                        "Resource": "*"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "CredentialsTable": {
+            "Type": "AWS::DynamoDB::GlobalTable",
+            "Properties": {
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "email",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "domain",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "email",
+                  "KeyType": "HASH"
+                }
+              ],
+              "GlobalSecondaryIndexes": [
+                {
+                  "IndexName": "domain-index",
+                  "KeySchema": [
+                    {
+                      "AttributeName": "domain",
+                      "KeyType": "HASH"
+                    }
+                  ],
+                  "Projection": {
+                    "ProjectionType": "ALL"
+                  }
+                }
+              ],
+              "Replicas": [
+                {
+                  "Region": "us-east-2"
+                }
+              ],
+              "BillingMode": "PAY_PER_REQUEST",
+              "TableName": "Credentials-Table-us-east-2"
+            }
+          },
+          "FastApiSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+              "GroupDescription": "Allow HTTP traffic to FastAPI",
+              "VpcId": {
+                "Ref": "VPC"
+              },
+              "SecurityGroupIngress": [
+                {
+                  "IpProtocol": "tcp",
+                  "FromPort": 8000,
+                  "ToPort": 8000,
+                  "CidrIp": "0.0.0.0/0"
+                },
+                {
+                  "IpProtocol": "tcp",
+                  "FromPort": 22,
+                  "ToPort": 22,
+                  "CidrIp": "0.0.0.0/0"
+                }
+              ]
+            }
+          },
+          "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+              "Tags": [
+                {
+                  "Key": "Name",
+                  "Value": "MyInternetGateway"
+                }
+              ]
+            }
+          },
+          "VPCGatewayAttachment": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+              "VpcId": {
+                "Ref": "VPC"
+              },
+              "InternetGatewayId": {
+                "Ref": "InternetGateway"
+              }
+            }
+          },
+          "PublicRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+              "VpcId": {
+                "Ref": "VPC"
+              },
+              "Tags": [
+                {
+                  "Key": "Name",
+                  "Value": "PublicRouteTable"
+                }
+              ]
+            }
+          },
+          "SubnetRouteTableAssociation": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+              "SubnetId": {
+                "Ref": "PublicSubnet"
+              },
+              "RouteTableId": {
+                "Ref": "PublicRouteTable"
+              }
+            }
+          },
+          "DefaultRoute": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+              "RouteTableId": {
+                "Ref": "PublicRouteTable"
+              },
+              "DestinationCidrBlock": "0.0.0.0/0",
+              "GatewayId": {
+                "Ref": "InternetGateway"
+              }
+            }
+          },
+          "EC2KeyPair": {
+            "Type": "AWS::EC2::KeyPair",
+            "Properties": {
+              "KeyName": "EC2KeyPairFASTAPI"
+            }
+          },
+          "FastApiInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+              "InstanceType": "t2.micro",
+              "KeyName": {
+                "Ref": "EC2KeyPair"
+              },
+              "ImageId": "ami-0c80e2b6ccb9ad6d1",
+              "SecurityGroupIds": [
+                {
+                  "Ref": "FastApiSecurityGroup"
+                }
+              ],
+              "SubnetId": {
+                "Ref": "PublicSubnet"
+              },
+              "Tags": [
+                {
+                  "Key": "Name",
+                  "Value": "FastApiEC2Instance"
+                }
+              ],
+              "UserData": {
+                "Fn::Base64": {
+                  "Fn::Sub": "#!/bin/bash\nyum update -y\ncd /home/ec2-user\nmkdir app\naws s3 cp s3://pwnd-s3-bucket-creator-prod-pwndec2codebucket-irxvs9luvtna /home/ec2-user/app --recursive\ncd app\necho \"Credentials-Table-us-east-2\" > db_name.txt\nsudo yum install -y python3-pip\npip3 install fastapi uvicorn boto3\nnohup uvicorn app:app --host 0.0.0.0 --port 8000 > /home/ec2-user/app/server.log 2>&1 &\n"
+                }
+              },
+              "IamInstanceProfile": {
+                "Ref": "Ec2InstanceProfile"
+              }
+            }
+          },
+          "Ec2InstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+              "Path": "/",
+              "Roles": [
+                {
+                  "Ref": "ec2FastAPIRole"
+                }
+              ]
+            }
+          },
+          "EC2InstancePublicIP": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+              "InstanceId": {
+                "Ref": "FastApiInstance"
+              }
+            }
+          },
+          "PublicSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+              "VpcId": {
+                "Ref": "VPC"
+              },
+              "CidrBlock": "10.0.1.0/24",
+              "MapPublicIpOnLaunch": true,
+              "AvailabilityZone": "us-east-2a"
+            }
+          },
+          "VPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+              "CidrBlock": "10.0.0.0/16",
+              "EnableDnsSupport": true,
+              "EnableDnsHostnames": true
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": "serverless-framework-deployments-us-east-2-892f4b5c-f3a5",
+            "Export": {
+              "Name": "sls-Pwnd-Backend-prod-ServerlessDeploymentBucketName"
+            }
+          },
+          "IngestUnderscoredataLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "IngestUnderscoredataLambdaVersionA0BnlAE0NIFtKZXwZysr13aFMg2SElMXZOBhk7Rvao"
+            },
+            "Export": {
+              "Name": "sls-Pwnd-Backend-prod-IngestUnderscoredataLambdaFunctionQualifiedArn"
+            }
+          },
+          "ProxyLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "ProxyLambdaVersionkaxR7pj0IuQcHjZfYXbTyltQDLZbyjdbZbC6PBMH8ic"
+            },
+            "Export": {
+              "Name": "sls-Pwnd-Backend-prod-ProxyLambdaFunctionQualifiedArn"
+            }
+          },
+          "ServiceEndpoint": {
+            "Description": "URL of the service endpoint",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Ref": "ApiGatewayRestApi"
+                  },
+                  ".execute-api.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix"
+                  },
+                  "/prod"
+                ]
+              ]
+            },
+            "Export": {
+              "Name": "sls-Pwnd-Backend-prod-ServiceEndpoint"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "custom": {
+      "region": "us-east-2",
+      "ec2InstanceUri": {
+        "Fn::Sub": "http://${EC2InstancePublicIP}:8000/query"
+      },
+      "tableName": "Credentials-Table-us-east-2"
+    },
+    "plugins": [
+      "serverless-python-requirements"
+    ],
+    "pluginsData": {},
+    "functions": {
+      "ingest_data": {
+        "handler": "lambdas/ingest_data.lambda_handler",
+        "timeout": 500,
+        "events": [
+          {
+            "s3": {
+              "bucket": "pwnd-s3-bucket-creator-prod-pwndrawdatabucket-vysphgm2oxcn",
+              "event": "s3:ObjectCreated:*",
+              "rules": [
+                {
+                  "prefix": "uploads/"
+                }
+              ],
+              "existing": true
+            }
+          }
+        ],
+        "name": "Pwnd-Backend-prod-ingest_data",
+        "package": {},
+        "memory": 1024,
+        "runtime": "python3.10",
+        "vpc": {},
+        "versionLogicalId": "IngestUnderscoredataLambdaVersionA0BnlAE0NIFtKZXwZysr13aFMg2SElMXZOBhk7Rvao"
+      },
+      "proxy": {
+        "handler": "handler.dummy",
+        "events": [
+          {
+            "http": {
+              "path": "query",
+              "method": "get",
+              "integration": "HTTP_PROXY",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "request": {
+                "uri": {
+                  "Fn::Sub": "http://${EC2InstancePublicIP}:8000/query"
+                }
+              },
+              "connectionType": null
+            }
+          }
+        ],
+        "name": "Pwnd-Backend-prod-proxy",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "python3.10",
+        "vpc": {},
+        "versionLogicalId": "ProxyLambdaVersionkaxR7pj0IuQcHjZfYXbTyltQDLZbyjdbZbC6PBMH8ic"
+      }
+    },
+    "resources": {
+      "Resources": {
+        "lambdaProcessRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "RoleName": "lambdaDataProcessRole",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "lambda.amazonaws.com"
+                    ]
+                  },
+                  "Action": [
+                    "sts:AssumeRole"
+                  ]
+                }
+              ]
+            },
+            "Policies": [
+              {
+                "PolicyName": "CredsTablePolicy",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "dynamodb:*"
+                      ],
+                      "Resource": {
+                        "Fn::GetAtt": [
+                          "CredentialsTable",
+                          "Arn"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "PolicyName": "s3Policy",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "s3:*"
+                      ],
+                      "Resource": "*"
+                    }
+                  ]
+                }
+              }
+            ],
+            "ManagedPolicyArns": [
+              "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            ]
+          }
+        },
+        "ec2FastAPIRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "RoleName": "ec2FastAPIRole",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "ec2.amazonaws.com"
+                    ]
+                  },
+                  "Action": [
+                    "sts:AssumeRole"
+                  ]
+                }
+              ]
+            },
+            "Policies": [
+              {
+                "PolicyName": "EC2ReadDB",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "dynamodb:*"
+                      ],
+                      "Resource": {
+                        "Fn::GetAtt": [
+                          "CredentialsTable",
+                          "Arn"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "PolicyName": "EC2AccessS3",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "s3:*"
+                      ],
+                      "Resource": "*"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "CredentialsTable": {
+          "Type": "AWS::DynamoDB::GlobalTable",
+          "Properties": {
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "email",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "domain",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "email",
+                "KeyType": "HASH"
+              }
+            ],
+            "GlobalSecondaryIndexes": [
+              {
+                "IndexName": "domain-index",
+                "KeySchema": [
+                  {
+                    "AttributeName": "domain",
+                    "KeyType": "HASH"
+                  }
+                ],
+                "Projection": {
+                  "ProjectionType": "ALL"
+                }
+              }
+            ],
+            "Replicas": [
+              {
+                "Region": "us-east-2"
+              }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "TableName": "Credentials-Table-us-east-2"
+          }
+        },
+        "FastApiSecurityGroup": {
+          "Type": "AWS::EC2::SecurityGroup",
+          "Properties": {
+            "GroupDescription": "Allow HTTP traffic to FastAPI",
+            "VpcId": {
+              "Ref": "VPC"
+            },
+            "SecurityGroupIngress": [
+              {
+                "IpProtocol": "tcp",
+                "FromPort": 8000,
+                "ToPort": 8000,
+                "CidrIp": "0.0.0.0/0"
+              },
+              {
+                "IpProtocol": "tcp",
+                "FromPort": 22,
+                "ToPort": 22,
+                "CidrIp": "0.0.0.0/0"
+              }
+            ]
+          }
+        },
+        "InternetGateway": {
+          "Type": "AWS::EC2::InternetGateway",
+          "Properties": {
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "MyInternetGateway"
+              }
+            ]
+          }
+        },
+        "VPCGatewayAttachment": {
+          "Type": "AWS::EC2::VPCGatewayAttachment",
+          "Properties": {
+            "VpcId": {
+              "Ref": "VPC"
+            },
+            "InternetGatewayId": {
+              "Ref": "InternetGateway"
+            }
+          }
+        },
+        "PublicRouteTable": {
+          "Type": "AWS::EC2::RouteTable",
+          "Properties": {
+            "VpcId": {
+              "Ref": "VPC"
+            },
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "PublicRouteTable"
+              }
+            ]
+          }
+        },
+        "SubnetRouteTableAssociation": {
+          "Type": "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties": {
+            "SubnetId": {
+              "Ref": "PublicSubnet"
+            },
+            "RouteTableId": {
+              "Ref": "PublicRouteTable"
+            }
+          }
+        },
+        "DefaultRoute": {
+          "Type": "AWS::EC2::Route",
+          "Properties": {
+            "RouteTableId": {
+              "Ref": "PublicRouteTable"
+            },
+            "DestinationCidrBlock": "0.0.0.0/0",
+            "GatewayId": {
+              "Ref": "InternetGateway"
+            }
+          }
+        },
+        "EC2KeyPair": {
+          "Type": "AWS::EC2::KeyPair",
+          "Properties": {
+            "KeyName": "EC2KeyPairFASTAPI"
+          }
+        },
+        "FastApiInstance": {
+          "Type": "AWS::EC2::Instance",
+          "Properties": {
+            "InstanceType": "t2.micro",
+            "KeyName": {
+              "Ref": "EC2KeyPair"
+            },
+            "ImageId": "ami-0c80e2b6ccb9ad6d1",
+            "SecurityGroupIds": [
+              {
+                "Ref": "FastApiSecurityGroup"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "PublicSubnet"
+            },
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "FastApiEC2Instance"
+              }
+            ],
+            "UserData": {
+              "Fn::Base64": {
+                "Fn::Sub": "#!/bin/bash\nyum update -y\ncd /home/ec2-user\nmkdir app\naws s3 cp s3://pwnd-s3-bucket-creator-prod-pwndec2codebucket-irxvs9luvtna /home/ec2-user/app --recursive\ncd app\necho \"Credentials-Table-us-east-2\" > db_name.txt\nsudo yum install -y python3-pip\npip3 install fastapi uvicorn boto3\nnohup uvicorn app:app --host 0.0.0.0 --port 8000 > /home/ec2-user/app/server.log 2>&1 &\n"
+              }
+            },
+            "IamInstanceProfile": {
+              "Ref": "Ec2InstanceProfile"
+            },
+            "Role": null
+          }
+        },
+        "Ec2InstanceProfile": {
+          "Type": "AWS::IAM::InstanceProfile",
+          "Properties": {
+            "Path": "/",
+            "Roles": [
+              {
+                "Ref": "ec2FastAPIRole"
+              }
+            ]
+          }
+        },
+        "EC2InstancePublicIP": {
+          "Type": "AWS::EC2::EIP",
+          "Properties": {
+            "InstanceId": {
+              "Ref": "FastApiInstance"
+            }
+          }
+        },
+        "PublicSubnet": {
+          "Type": "AWS::EC2::Subnet",
+          "Properties": {
+            "VpcId": {
+              "Ref": "VPC"
+            },
+            "CidrBlock": "10.0.1.0/24",
+            "MapPublicIpOnLaunch": true,
+            "AvailabilityZone": "us-east-2a"
+          }
+        },
+        "VPC": {
+          "Type": "AWS::EC2::VPC",
+          "Properties": {
+            "CidrBlock": "10.0.0.0/16",
+            "EnableDnsSupport": true,
+            "EnableDnsHostnames": true
+          }
+        }
+      },
+      "Outputs": {}
+    },
+    "configValidationMode": "warn",
+    "serviceFilename": "serverless.yml",
+    "initialServerlessConfig": {
+      "service": "Pwnd-Backend",
+      "provider": {
+        "$ref": "$[\"service\"][\"provider\"]"
+      },
+      "functions": {
+        "$ref": "$[\"service\"][\"functions\"]"
+      },
+      "resources": {
+        "$ref": "$[\"service\"][\"resources\"]"
+      },
+      "custom": {
+        "$ref": "$[\"service\"][\"custom\"]"
+      },
+      "plugins": {
+        "$ref": "$[\"service\"][\"plugins\"]"
+      }
+    },
+    "appId": null,
+    "orgId": null,
+    "layers": {},
+    "artifact": "/home/jacob/Documents/SpyCloud Code Challenge/pwnd-backend/.serverless/Pwnd-Backend.zip"
+  },
+  "package": {
+    "artifactDirectoryName": "serverless/Pwnd-Backend/prod/1733213700634-2024-12-03T08:15:00.634Z",
+    "artifact": "Pwnd-Backend.zip"
+  }
+}
