@@ -112,12 +112,13 @@ def search_email(email):
     try:
         response = table.get_item(Key={"email": email})  # search DB for email
         if "Item" not in response:
-            raise HTTPException(status_code=404, detail=f"Email {email} not found")
+            return PaginatedResponse(items=[], count=0)
         print(response)
         item = [Item(**response["Item"])]
         return PaginatedResponse(items=item, count=1)
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Internal Server Error.")
+        logger.error(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
     
 def search_domain(domain, limit=20, last_evaluated_key=None):
@@ -142,15 +143,15 @@ def search_domain(domain, limit=20, last_evaluated_key=None):
             
         logger.debug(response)
         if "Items" not in response:
-            raise HTTPException(status_code=404, detail=f"No emails with {domain} found")
+            return PaginatedResponse(items=[], count=0)
         items = response["Items"]
         result_items = [Item(**item) for item in items] #convert DB items into Item model
         next_last_evaluated_key= response.get("LastEvaluatedKey")
         print(next_last_evaluated_key)
         return PaginatedResponse(items = result_items, count=response.get("Count"), last_evaluated_key= next_last_evaluated_key.get("email") if next_last_evaluated_key else None )
     except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 #Scan DB
@@ -162,28 +163,33 @@ def scan_db_for_items(last_evaluated_key= None, limit= 20):
     :param limit: limit of how many items to return from DB
     
     """
-    
-    params = {
-        "Limit": limit,  # You can adjust the limit per page here
-    }
-    
-    if last_evaluated_key:
-        params["ExclusiveStartKey"] = {"email" : last_evaluated_key}
-    
-    response = table.scan(**params) #perform SCAN operation on DB
-    print(response)
-    
+    try:
+        params = {
+            "Limit": limit,  # You can adjust the limit per page here
+        }
+        
+        if last_evaluated_key:
+            params["ExclusiveStartKey"] = {"email" : last_evaluated_key}
+        
+        response = table.scan(**params) #perform SCAN operation on DB
+        print(response)
+        
 
-    items = response.get("Items", []) #if DB is empty return an empty string
+        items = response.get("Items", []) #if DB is empty return an empty string
 
-    next_last_evaluated_key = response.get("LastEvaluatedKey") #get Last Evaluated Key to be able to paginate response
-    
-    result_items = [Item(**item) for item in items] #convert DB items into Item model
-    
-    return PaginatedResponse(
-        items=result_items,
-        last_evaluated_key=next_last_evaluated_key.get("email") if next_last_evaluated_key else None,
-        count = response.get("Count")
-    )
+        next_last_evaluated_key = response.get("LastEvaluatedKey") #get Last Evaluated Key to be able to paginate response
+        
+        result_items = [Item(**item) for item in items] #convert DB items into Item model
+        
+        return PaginatedResponse(
+            items=result_items,
+            last_evaluated_key=next_last_evaluated_key.get("email") if next_last_evaluated_key else None,
+            count = response.get("Count")
+        )
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 
     
