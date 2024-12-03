@@ -1,5 +1,6 @@
 service: Pwnd-Backend
-
+#this serverless file creates all of our backend infrastructure, the ec2 instance and networking, along with the lamdba to process the credentials
+#TODO: Change permissions on IAM roles to be Least Priviledge
 provider:
   name: aws
   runtime: python3.10
@@ -17,10 +18,10 @@ functions:
     timeout: 500
     events:
       - s3:
-          bucket: ${param:dataBucketName} # Replace with your bucket name
+          bucket: ${param:dataBucketName}
           event: s3:ObjectCreated:* # Trigger for object creation
           rules:
-            - prefix: uploads/ # Optional: Only triggers for files in this path
+            - prefix: uploads/
           existing: true
   proxy:
     handler: handler.dummy # Dummy handler, used for the HTTP Proxy integration
@@ -31,7 +32,7 @@ functions:
           integration: http-proxy
           cors: true
           request:
-            uri: ${self:custom.ec2InstanceUri} # Proxy all paths
+            uri: ${self:custom.ec2InstanceUri}
 
 resources:
   Resources:
@@ -57,17 +58,9 @@ resources:
                   Action:
                     - dynamodb:*
                   Resource: !GetAtt CredentialsTable.Arn
-          - PolicyName: s3Policy
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - "s3:*"
-                  Resource: "*"
-
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
     ec2FastAPIRole:
       Type: AWS::IAM::Role
       Properties:
@@ -90,14 +83,8 @@ resources:
                   Action:
                     - dynamodb:*
                   Resource: !GetAtt CredentialsTable.Arn
-          - PolicyName: EC2AccessS3
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - s3:*
-                  Resource: "*"
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 
     CredentialsTable:
       Type: "AWS::DynamoDB::GlobalTable"

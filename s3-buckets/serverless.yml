@@ -1,5 +1,8 @@
 service: Pwnd-S3-Bucket-Creator
-
+### this serverless template just serves to create our 3 buckets used throughout the service
+### One is the rawData bucket, in which admin's of the service can load raw credential files into the bucket to trigger a processing lambda
+### One is the codeBucket, which we use to store our EC2 instance's code
+### Final one is our web hosting s3 bucket, which we use to host our static webpage
 provider:
   name: aws
   region: us-east-2

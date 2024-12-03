@@ -1,0 +1,97 @@
+openapi: 3.0.3
+info:
+  title: Pwnd API
+  description: |-
+
+    This is the OPEN API definition of the Pwnd Webservice used to query our Pwnd Database
+
+    Some useful links:
+    - [The Code repository](https://github.com/jacobgrimm/pwndDashBoard)
+    - [The Readme on how to install the service](https://github.com/jacobgrimm/pwndDashBoard/blob/main/README.md)
+  contact:
+    email: jacobgrimm@ymail.com
+  version: 1.0.11
+tags:
+  - name: query
+    description: query data from database
+  - name: auth
+    description: in progress
+paths:
+  /query:
+    get:
+      tags:
+        - query
+      summary: Logs user into the system
+      description: ""
+      operationId: loginUser
+      parameters:
+        - name: mode
+          in: query
+          description: The request mode (e.g. will it be scanning the database, or searching on an element )
+          required: true
+          schema:
+            type: string
+            enum: [email, domain, show]
+        - name: domain
+          in: query
+          description: If mode is set to "domain" it will be querying on the domains
+          required: false
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: If mode is set to "email" it will be searching for this email
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: If mode is either "domain" or "show" this is how many results to show
+          required: false
+          schema:
+            type: integer
+        - name: last_accessed_key
+          in: query
+          description: If mode is either "domain" or "show" this is the result from the previous request in order to paginate
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+        "404":
+          description: Resource not found
+        "500":
+          description: Server Side Error
+
+components:
+  schemas:
+    Item:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        domain:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+    PaginatedResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
+        last_evaluated_key:
+          type: string
+          nullable: true
+        count:
+          type: integer
+          format: int32

@@ -51,7 +51,7 @@ except Exception as e:
     logger.error("can't find db_name.txt")
     
 if DB_NAME:
-    table = dynamodb.Table(DB_NAME) #as well need to dynamically gather this table name
+    table = dynamodb.Table(DB_NAME) # we have dynamically gathered this table name from userdata
 else:
     table = dynamodb.Table("info-table") #as well need to dynamically gather this table name
 # Initialize FastAPI app
@@ -93,7 +93,7 @@ async def query_db( mode: str= None, email: str = None, domain: str = None, last
     if mode == "email" and email:
         return search_email(email)
     elif mode == "domain" and domain:
-        return search_domain(domain,limit=limit)
+        return search_domain(domain,limit=limit,last_evaluated_key=last_evaluated_key)
     elif mode == "show": 
         return scan_db_for_items(last_evaluated_key=last_evaluated_key, limit=limit)
     else:
@@ -120,25 +120,36 @@ def search_email(email):
         raise HTTPException(status_code=500, detail="Internal Server Error.")
 
     
-def search_domain(domain, limit=20):
+def search_domain(domain, limit=20, last_evaluated_key=None):
     """
     queries the domain secondary index and returns the top results, as well
     is able to be paginated
-    
-    :param 
-    """ 
+        """ 
     try:
-        response = table.query( #query
-            IndexName='domain-index', #need to make this a environment var too
-            KeyConditionExpression=Key('domain').eq(domain),
-            Limit=limit)
+        if last_evaluated_key:
+            response = table.query( #query
+                IndexName='domain-index', 
+                KeyConditionExpression=Key('domain').eq(domain),
+                Limit=limit,
+                ExclusiveStartKey={"email" :last_evaluated_key, "domain": domain }
+                )
+        else:
+            response = table.query( #query
+                IndexName='domain-index', 
+                KeyConditionExpression=Key('domain').eq(domain),
+                Limit=limit,)
+
+            
+        logger.debug(response)
         if "Items" not in response:
             raise HTTPException(status_code=404, detail=f"No emails with {domain} found")
-        items = response.get("Items")
+        items = response["Items"]
         result_items = [Item(**item) for item in items] #convert DB items into Item model
         next_last_evaluated_key= response.get("LastEvaluatedKey")
+        print(next_last_evaluated_key)
         return PaginatedResponse(items = result_items, count=response.get("Count"), last_evaluated_key= next_last_evaluated_key.get("email") if next_last_evaluated_key else None )
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 

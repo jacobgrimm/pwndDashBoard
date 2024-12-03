@@ -13,7 +13,7 @@
   - Search by individual email addresses.
   - View all compromised accounts.
 - 🖥️ **Dashboard:** An intuitive React-based dashboard for querying data via the backend.
-- 🖥️ **Dashboard:** An intuitive React-based dashboard for querying data via the backend.
+- 🖥️ **Pagination:** Able to Paginate on Large Queries
 
 ---
 
@@ -34,17 +34,37 @@
 1. Install [AWS CLI](https://aws.amazon.com/cli/) and configure it with your AWS credentials.
 2. Install [npm](https://www.npmjs.com/).
 3. Ensure you have the Serverless Framework installed globally:
+   '''
    npm install -g serverless
+   '''
 
 ## **Deploying**
 
-Run the deployment script to provision the necessary AWS infrastructure and deploy the application:
-
+Run the deployment script from the project's root directory to provision the necessary AWS infrastructure and deploy the application:
+'''
 ./deploy.sh
+'''
 The deployment script will:
 
-Create an S3 bucket for uploading credential files.
-Deploy the backend using FastAPI, hosted on an EC2 instance.
-Set up a DynamoDB table for storing processed credential data.
-Deploy the frontend (Vite/React) and connect it to the backend.
-Once the deployment is complete, the script will output the URL for accessing the dashboard.
+1. Create an S3 bucket for uploading credential files.
+2. Deploy the backend using FastAPI, hosted on an EC2 instance.
+3. Set up a DynamoDB table for storing processed credential data.
+4. Deploy the frontend (Vite/React) and connect it to the backend.
+5. Once the deployment is complete, the script will output the URL for accessing the dashboard.
+6. Add the default available credentials files contained in "challenge_creds.txt" at the root of the project
+
+---
+
+## **Post-Deployment**
+
+### **Navigate to your Webpage**
+
+1. At the end of the deployment there should be a url that says your static webpage is accessible
+2. Open the link
+3. Either search on email, query by domain name, or feel free to look through every entry in the database, as it is all paginated
+
+### **Add-More Credentials**
+
+1. Log on to AWS Console and navigate to the RAW DATA S3 bucket created by the deploy script, it should have a long name such as
+2. On the S3 bucket, we have a create object trigger for files created with a prefix of uploads/
+3. Place the file in the

@@ -34,6 +34,7 @@ def prepare_DB_record(line):
     
     if len(parts) == 2:  # Expecting exactly two parts (email, password)
         email, password = parts
+        email = email.lower() #lowercase because email is non-case sensitive
         try:
             username, domain = email.split("@", 1) #split on 1st @ sign
         except:

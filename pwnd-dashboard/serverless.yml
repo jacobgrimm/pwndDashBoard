@@ -1,5 +1,5 @@
 service: pwnd-dashboard
-
+#this serverless file just configures our bucket to host the code and uploads our code to the bucket
 provider:
   name: aws
   stage: prod

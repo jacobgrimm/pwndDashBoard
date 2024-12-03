@@ -14,7 +14,7 @@ export interface ApiResponseObject {
   count: Number;
   last_evaluated_key: string;
 }
-
+//simple table to display API results as they come in
 const ResultsTable: React.FC<ApiResponseObject> = (
   //Table for displaying the items found in Query to API
   ApiResponse

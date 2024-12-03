@@ -9,6 +9,8 @@ interface ButtonProps {
   setLastEvaluatedKey: any;
 }
 
+//this button is in charge of making the API calls whenever it's onClick function is triggered
+// it does this by using the refetch function returned from react-query's useQuery
 const QueryButton: React.FC<ButtonProps> = ({
   query,
   setResponse,

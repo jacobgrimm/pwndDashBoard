@@ -4,7 +4,8 @@ import { Input } from "@chakra-ui/react";
 interface SelectRadioProps {
   setQuery: (query: string) => void;
 }
-
+//this radio and input combo work to handle the api input
+//depending on values in the elements, it will the query using the setQuery input
 const SelectRadio: React.FC<SelectRadioProps> = ({ setQuery }) => {
   const [radioValue, setRadioValue] = useState("query");
   const [inputValue, setInputValue] = useState("");
@@ -12,11 +13,11 @@ const SelectRadio: React.FC<SelectRadioProps> = ({ setQuery }) => {
   const handleInputChange = (event: any) => {
     setInputValue(event.target.value);
   };
-
+  //depending on what option is selected, we will slightly alter the request we are preparing to send
   useEffect(() => {
     if (radioValue == "query") {
       const queryString = new URLSearchParams({
-        limit: "20",
+        //create a URLSearchParams object to safely handle input and then turn it into a string
         mode: "show",
       }).toString();
       setQuery(queryString);

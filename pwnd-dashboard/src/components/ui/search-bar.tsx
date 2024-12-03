@@ -8,7 +8,8 @@ import PaginationButton from "./pagination-button";
 interface SearchBarProps {
   setApiResponse: (response: any) => void;
 }
-
+//this higher level component serves to organize the radioInput along with the buttons that make the query's through their onClick handler
+//this component also manages the Query to be able to send it to the query buttons
 const SearchBar: React.FC<SearchBarProps> = ({ setApiResponse }) => {
   const [query, setQuery] = useState("");
   const [lastEvaluatedKey, setLastEvaluatedKey] = useState("");

@@ -11,6 +11,9 @@ interface ButtonProps {
   setLastEvaluatedKey: any;
 }
 
+//This button is in charge of pagination, whenever clicked it makes the pagination request to the server
+//Returns request to through setResponse up to the parents components
+//lastEvaluatedKey is the required query parameter for our pagination
 const PaginationButton: React.FC<ButtonProps> = ({
   query,
   setResponse,
@@ -20,6 +23,7 @@ const PaginationButton: React.FC<ButtonProps> = ({
   const [extendedQuery, setExtendedQuery] = useState("");
 
   const { data, refetch } = useQuery({
+    //this is the query and is set to be disabled until button click at which refetch is called
     queryKey: ["queryDB"],
     queryFn: async () => {
       const response = await fetch(API_ENDPOINT + "/query?" + extendedQuery, {
@@ -41,7 +45,7 @@ const PaginationButton: React.FC<ButtonProps> = ({
   }, [data]);
 
   useEffect(() => {
-    console.log("here");
+    //here is how we create the new request based on the previous one to paginate with the lastEvaluatedKey
     setExtendedQuery(
       query +
         "&" +
@@ -57,6 +61,7 @@ const PaginationButton: React.FC<ButtonProps> = ({
       color={"black"}
       onClick={() => refetch()}
       colorPalette={"black"}
+      disabled={!lastEvaluatedKey}
     >
       <HiArrowCircleRight />
     </IconButton>

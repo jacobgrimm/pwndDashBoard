@@ -54,4 +54,3 @@ echo "Credential File has just been uploaded, processing into DB right now"
 
 
 echo "API Endpoint - $ENDPOINT"
-echo "Dashboard URL - $"
