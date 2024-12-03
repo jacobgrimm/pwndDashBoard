@@ -11,7 +11,12 @@ const SelectRadio: React.FC<SelectRadioProps> = ({ setQuery }) => {
   const [inputValue, setInputValue] = useState("");
 
   const handleInputChange = (event: any) => {
-    setInputValue(event.target.value);
+    if (event.target.value.length > 320) {
+      //keep the input length less than the max length of an email
+      setInputValue(event.target.value.substring(0, 320));
+    } else {
+      setInputValue(event.target.value);
+    }
   };
   //depending on what option is selected, we will slightly alter the request we are preparing to send
   useEffect(() => {

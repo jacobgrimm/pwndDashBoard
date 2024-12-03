@@ -57,7 +57,10 @@ resources:
                 - Effect: Allow
                   Action:
                     - dynamodb:*
-                  Resource: !GetAtt CredentialsTable.Arn
+                  Resource: !Join
+                    - ""
+                    - - !GetAtt CredentialsTable.Arn
+                      - "*" # this is so we can access the secondary index table as well
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
           - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
@@ -82,7 +85,10 @@ resources:
                 - Effect: Allow
                   Action:
                     - dynamodb:*
-                  Resource: !GetAtt CredentialsTable.Arn
+                  Resource: !Join
+                    - ""
+                    - - !GetAtt CredentialsTable.Arn
+                      - "*"
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 

@@ -1,4 +1,3 @@
-import json
 import boto3
 import urllib.parse
 import re
@@ -35,6 +34,8 @@ def prepare_DB_record(line):
     if len(parts) == 2:  # Expecting exactly two parts (email, password)
         email, password = parts
         email = email.lower() #lowercase because email is non-case sensitive
+        if len(email) > 320:  #max length of any email address is 320 chars
+            return
         try:
             username, domain = email.split("@", 1) #split on 1st @ sign
         except:

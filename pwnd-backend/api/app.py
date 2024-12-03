@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import boto3
 from boto3.dynamodb.conditions import Key
 from typing import Optional,List
-import os
-from get_region import get_instance_region
 from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
 import logging
+from get_region import get_instance_region
+
 
 
 # Initialize log configuration
