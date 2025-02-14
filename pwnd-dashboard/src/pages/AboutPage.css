@@ -1,0 +1,107 @@
+/* AboutPage.css */
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.tech-specs {
+  margin: 3rem 0;
+}
+
+.tech-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+}
+
+.badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.badge.aws {
+  background: #ff9900;
+  color: white;
+}
+.badge.backend {
+  background: #009688;
+  color: white;
+}
+.badge.infra {
+  background: #607d8b;
+  color: white;
+}
+.badge.frontend {
+  background: #2196f3;
+  color: white;
+}
+
+.architecture-diagram {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 10px;
+  margin: 2rem 0;
+}
+
+.arch-step {
+  margin: 2.5rem 0;
+}
+
+.arch-components {
+  display: flex;
+  align-items: start;
+  gap: 2rem;
+  margin: 1rem 0;
+}
+
+.component {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 1;
+}
+
+.arrow {
+  font-size: 2rem;
+  padding: 1rem;
+  align-self: center;
+}
+
+.key-features {
+  margin: 4rem 0;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 768px) {
+  .arch-components {
+    flex-direction: column;
+  }
+
+  .arrow {
+    transform: rotate(90deg);
+    padding: 0;
+  }
+}

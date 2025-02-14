@@ -12,7 +12,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
 a {
   font-weight: 500;
   color: #646cff;
@@ -24,9 +23,20 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  /* Remove these lines: */
+  /* display: flex; */
+  /* place-items: center; */
+  /* Add this instead: */
+  display: block;
   min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Add this rule to ensure full-width containers */
+#root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   min-height: 100vh;
 }
 

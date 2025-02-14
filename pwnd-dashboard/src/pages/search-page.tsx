@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heading } from "@chakra-ui/react";
+import { Heading, Image } from "@chakra-ui/react";
 import SearchBar from "@/components/ui/search-bar";
 
 import ResultsTable, {
@@ -12,17 +12,25 @@ import ResultsTable, {
 function SearchPage() {
   const [apiResponse, setApiResponse] = useState<ApiResponseObject>();
   return (
-    <div>
-      <Heading>Pwnd Dashboard</Heading>
-      <SearchBar setApiResponse={setApiResponse} />
-      {apiResponse && (
-        <ResultsTable
-          items={apiResponse.items}
-          count={apiResponse.count}
-          last_evaluated_key={apiResponse.last_evaluated_key}
-        />
+    <>
+      {!apiResponse && (
+        <Image src="https://i.pcmag.com/imagery/lineups/02Wn8IYRd6ICKePO9IlsEs2-1.fit_lim.size_1600x900.v1569492838.jpg" />
       )}
-    </div>
+      <Heading>
+        Welcome to leakd, here you are able to search emails and find passwords
+        leaked found through our database of combolists.
+      </Heading>
+      <div>
+        <SearchBar setApiResponse={setApiResponse} />
+        {apiResponse && (
+          <ResultsTable
+            items={apiResponse.items}
+            count={apiResponse.count}
+            last_evaluated_key={apiResponse.last_evaluated_key}
+          />
+        )}
+      </div>
+    </>
   );
 }
 

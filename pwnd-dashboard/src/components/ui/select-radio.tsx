@@ -57,6 +57,9 @@ const SelectRadio: React.FC<SelectRadioProps> = ({ setQuery }) => {
             ? "Switch to Email/Domain modes to Search"
             : "Enter a " + radioValue + " to search"
         }
+        size="lg" // Makes it bigger
+        fontSize="1.5rem" // Increase font size
+        p={4} // Adds padding for better visibility
       />
 
       <RadioGroup
