@@ -1,14 +1,19 @@
 #!/bin/bash
-
+HOSTED_ZONE_ID="Z05835821S1C4RYAI5EBD"
+DOMAIN_NAME="leakd.in"
+set -e
 cd s3-buckets
 #first create the Backend API Buckets
 npm install
 serverless deploy
-bucket_stack_name="Pwnd-S3-Bucket-Creator-prod"
+BUCKET_STACK_INFO=$(serverless info --verbose 2>&1) 
+
+BUCKET_STACK_NAME=$(echo $BUCKET_STACK_INFO | grep -o "stack: [^ ]*" | awk '{print $2}')
+
 #grab the bucket names so we can pass them into our MAIN Backend Stack
-CODE_BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name $bucket_stack_name --query "Stacks[0].Outputs[?OutputKey=='PwndCodeBucket'].OutputValue" --output text)
-DATA_BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name $bucket_stack_name --query "Stacks[0].Outputs[?OutputKey=='PwndRawDataBucket'].OutputValue" --output text)
-STATIC_WEBSITE_BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name $bucket_stack_name --query "Stacks[0].Outputs[?OutputKey=='StaticSiteBucket'].OutputValue" --output text)
+CODE_BUCKET_NAME=$(echo $BUCKET_STACK_INFO | grep -o "CodeBucket: [^ ]*" | awk '{print $2}')
+DATA_BUCKET_NAME=$(echo $BUCKET_STACK_INFO | grep -o "RawDataBucket: [^ ]*" | awk '{print $2}')
+STATIC_WEBSITE_BUCKET_NAME=$(echo $BUCKET_STACK_INFO | grep -o "StaticSiteBucket: [^ ]*" | awk '{print $2}')
 cd ../pwnd-backend
 
 #copy code onto S3 buckets so we can download it onto the EC2 instance that is hosting our API
@@ -20,7 +25,7 @@ npm install
 serverless deploy --param="dataBucketName=$DATA_BUCKET_NAME" --param="codeBucketName=$CODE_BUCKET_NAME"
 
 #grab API endpoint from CF STACK OUTPUTS so we can put it into the front-end
-ENDPOINT=$(aws cloudformation describe-stacks --stack-name Pwnd-Backend-prod --query "Stacks[0].Outputs[?OutputKey=='ServiceEndpoint'].OutputValue" --output text)
+ENDPOINT=$(serverless info --verbose 2>&1 | grep -o "ServiceEndpoint: [^ ]*" | awk '{print $2}')
 
 #navigate to Front END
 cd ../pwnd-dashboard
@@ -43,9 +48,8 @@ npm run build
 
 export STATIC_WEBSITE_BUCKET_NAME
 #create env variable so that we can read the bucket name from the webapp
-
-serverless client deploy --no-confirm
-
+serverless client deploy --no-confirm --param="domainName=$DOMAIN_NAME" --param="hostedZoneId=$HOSTED_ZONE_ID"
+serverless deploy --param="domainName=$DOMAIN_NAME" --param="hostedZoneId=$HOSTED_ZONE_ID"
 cd ..
 
 aws s3 cp challenge_creds.txt s3://$DATA_BUCKET_NAME/uploads/challenge_creds.txt

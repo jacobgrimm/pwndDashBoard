@@ -3,7 +3,49 @@ service: pwnd-dashboard
 provider:
   name: aws
   stage: prod
-  region: us-east-2
+
+resources:
+  Resources:
+    AcmCertificate:
+      Type: AWS::CertificateManager::Certificate
+      Properties:
+        DomainName: ${param:domainName}
+        ValidationMethod: DNS
+        DomainValidationOptions:
+          - DomainName: ${param:domainName}
+            HostedZoneId: ${param:hostedZoneId}
+
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Enabled: true
+          Aliases:
+            - ${param:domainName}
+          DefaultCacheBehavior:
+            TargetOriginId: myS3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            ForwardedValues:
+              QueryString: false
+          DefaultRootObject: index.html
+          ViewerCertificate:
+            AcmCertificateArn: !Ref AcmCertificate
+            SslSupportMethod: sni-only
+          Origins:
+            - Id: myS3Origin
+              DomainName: ${env:STATIC_WEBSITE_BUCKET_NAME}.s3.amazonaws.com
+              S3OriginConfig:
+                OriginAccessIdentity: ""
+
+    Route53Record:
+      Type: AWS::Route53::RecordSet
+      Properties:
+        HostedZoneId: ${param:hostedZoneId}
+        Name: ${param:domainName}
+        Type: A
+        AliasTarget:
+          HostedZoneId: Z2FDTNDATAQYW2 # CloudFront's hosted zone ID (static value)
+          DNSName: !GetAtt CloudFrontDistribution.DomainName
 
 plugins:
   - serverless-finch # Optional for additional static site capabilities
@@ -13,3 +55,4 @@ custom:
   client:
     bucketName: ${env:STATIC_WEBSITE_BUCKET_NAME}
     distributionFolder: ./dist
+    errorDocument: index.html

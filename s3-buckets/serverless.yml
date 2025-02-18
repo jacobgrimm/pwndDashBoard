@@ -5,7 +5,6 @@ service: Pwnd-S3-Bucket-Creator
 ### Final one is our web hosting s3 bucket, which we use to host our static webpage
 provider:
   name: aws
-  region: us-east-2
   stage: prod
 
 resources:

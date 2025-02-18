@@ -165,3 +165,4 @@ node_modules/
 # Ignore .serverless directory
 .serverless/
 remove.sh
+package-lock.json

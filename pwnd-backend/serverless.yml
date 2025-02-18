@@ -4,7 +4,6 @@ service: Pwnd-Backend
 provider:
   name: aws
   runtime: python3.10
-  region: us-east-2
   stage: prod
 
   environment:
@@ -175,7 +174,7 @@ resources:
       Properties:
         InstanceType: t2.micro # free tier ec2 instance
         KeyName: !Ref EC2KeyPair
-        ImageId: ami-0c80e2b6ccb9ad6d1
+        ImageId: ami-053a45fff0a704a47
         Role:
         SecurityGroupIds:
           - !Ref FastApiSecurityGroup
@@ -217,7 +216,7 @@ resources:
         VpcId: !Ref VPC
         CidrBlock: 10.0.1.0/24
         MapPublicIpOnLaunch: true
-        AvailabilityZone: us-east-2a
+        AvailabilityZone: "us-east-1a"
     VPC:
       Type: AWS::EC2::VPC
       Properties:
@@ -226,7 +225,7 @@ resources:
         EnableDnsHostnames: true
 
 custom:
-  region: "us-east-2"
+  region: us-east-1
   ec2InstanceUri: !Sub "http://${EC2InstancePublicIP}:8000/query"
   tableName: Credentials-Table-${self:custom.region}
 
