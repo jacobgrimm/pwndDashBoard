@@ -1,0 +1,24 @@
+FROM python:3.11
+
+
+WORKDIR /app
+
+COPY ./requirements.txt /app/requirements.txt
+
+
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+
+
+COPY ./api/app.py /app/app.py
+COPY ./api/get_region.py /app/get_region.py
+
+
+# Fetch additional resources from S3 (if needed)
+# Note: Ensure AWS credentials are properly configured
+# RUN aws s3 cp s3://your-bucket-name /app --recursive
+
+# Expose the port FastAPI will run on
+EXPOSE 8000
+
+# Command to run the application
+CMD ["/bin/sh", "-c", "echo \"$DB_NAME\" > /app/db_name.txt && uvicorn app:app --host 0.0.0.0 --port 8000"]

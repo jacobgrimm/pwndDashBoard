@@ -186,14 +186,14 @@ resources:
           Fn::Base64: !Sub |
             #!/bin/bash
             yum update -y
+            sudo yum install docker -y
             cd /home/ec2-user
             mkdir app
-            aws s3 cp s3://${param:codeBucketName} /home/ec2-user/app --recursive
+            sudo aws s3 cp s3://${param:codeBucketName}/ /home/ec2-user/app --recursive
             cd app
-            echo "${self:custom.tableName}" > db_name.txt
-            sudo yum install -y python3-pip
-            pip3 install fastapi uvicorn boto3
-            nohup uvicorn app:app --host 0.0.0.0 --port 8000 > /home/ec2-user/app/server.log 2>&1 &
+            sudo service docker start
+            sudo usermod -a -G docker ec2-user
+            sudo docker run -d --name mycontainer -p 8000:8000 myimage -e DB_NAME=${self:custom.tableName}
 
         IamInstanceProfile: !Ref Ec2InstanceProfile
     Ec2InstanceProfile:
