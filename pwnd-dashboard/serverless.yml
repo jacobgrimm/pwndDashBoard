@@ -36,6 +36,10 @@ resources:
               DomainName: ${env:STATIC_WEBSITE_BUCKET_NAME}.s3.amazonaws.com
               S3OriginConfig:
                 OriginAccessIdentity: ""
+          CustomErrorResponses:
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
 
     Route53Record:
       Type: AWS::Route53::RecordSet
