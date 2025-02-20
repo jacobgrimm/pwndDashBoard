@@ -1,6 +1,7 @@
 // WhyPage.tsx
 import { useState } from "react";
 import "./WhyPage.css"; // Create this file
+import { Link } from "@chakra-ui/react";
 
 export default function WhyPage() {
   const [openSection, setOpenSection] = useState<string | null>(null);
@@ -115,7 +116,9 @@ export default function WhyPage() {
       {/* CTA Section */}
       <div className="cta-section">
         <h3>Ready to Take Security Seriously?</h3>
-        <button className="cta-button">Check Your Exposure Now →</button>
+        <Link href="/">
+          <button className="cta-button">Check Your Exposure Now →</button>
+        </Link>
       </div>
     </div>
   );

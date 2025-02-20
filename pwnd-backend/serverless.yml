@@ -8,6 +8,8 @@ provider:
 
   environment:
     CREDS_TABLE: !Ref CredentialsTable
+    BUCKET_NAME: ${param:dataBucketName}
+
   iam:
     role: lambdaProcessRole
 
@@ -22,6 +24,12 @@ functions:
           rules:
             - prefix: uploads/
           existing: true
+  scrape_files_to_s3:
+    handler: lambdas/download_combolist.lambda_handler
+    timeout: 3000
+    events:
+      - schedule: rate(240 hours)
+
   proxy:
     handler: handler.dummy # Dummy handler, used for the HTTP Proxy integration
     events:
@@ -62,7 +70,9 @@ resources:
                       - "*" # this is so we can access the secondary index table as well
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-          - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+          - arn:aws:iam::aws:policy/AmazonS3FullAccess
+          # - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+
     ec2FastAPIRole:
       Type: AWS::IAM::Role
       Properties:

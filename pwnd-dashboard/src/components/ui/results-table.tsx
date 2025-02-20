@@ -1,4 +1,4 @@
-import { Table } from "@chakra-ui/react";
+import { Table, Box } from "@chakra-ui/react";
 
 export interface responseItem {
   //Individual DB items
@@ -23,7 +23,7 @@ const ResultsTable: React.FC<ApiResponseObject> = (
     <div>
       {
         //only render TABLE if there is actual data to render
-        <div>
+        <Box overflowX="scroll">
           <Table.Root key={"Results"} size={"md"}>
             <Table.Header>
               <Table.Row>
@@ -48,7 +48,7 @@ const ResultsTable: React.FC<ApiResponseObject> = (
                 ))}
             </Table.Body>
           </Table.Root>
-        </div>
+        </Box>
       }
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Box, Flex, Stack, IconButton, Link, Button } from "@chakra-ui/react";
+import { Box, Flex, Stack, IconButton, Link, Text } from "@chakra-ui/react";
 import { MdMenu as HamburgerIcon, MdClose as CloseIcon } from "react-icons/md";
 
 export default function Navbar() {
@@ -21,12 +21,14 @@ export default function Navbar() {
       justify="space-between"
       zIndex="1000" // Keep it above everything
     >
-      <Box fontSize="xl" fontWeight="bold">
-        leakd
-      </Box>
+      <Link href="/">
+        <Box fontSize="xl" fontWeight="bold" color="white">
+          leakd
+        </Box>
+      </Link>
 
       {/* Desktop Menu */}
-      <Stack direction="row" gap={6} display={{ base: "none", md: "flex" }}>
+      <Stack direction="row" gap={8} display={{ base: "none", md: "flex" }}>
         <NavLink href="/">Home</NavLink>
         <NavLink href="/why">Why?</NavLink>
         <NavLink href="/about">About</NavLink>
@@ -38,7 +40,7 @@ export default function Navbar() {
         display={{ base: "flex", md: "none" }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <CloseIcon /> : <HamburgerIcon />}
+        {isOpen ? <CloseIcon color="black" /> : <HamburgerIcon color="black" />}
       </IconButton>
 
       {/* Mobile Menu */}
@@ -56,14 +58,14 @@ export default function Navbar() {
           boxShadow="lg"
           zIndex="100"
         >
-          <NavLink href="#" onClick={() => setIsOpen(false)}>
+          <NavLink href="/" onClick={() => setIsOpen(false)}>
             Home
           </NavLink>
-          <NavLink href="#" onClick={() => setIsOpen(false)}>
-            About
+          <NavLink href="/why" onClick={() => setIsOpen(false)}>
+            Why?
           </NavLink>
-          <NavLink href="#" onClick={() => setIsOpen(false)}>
-            Contact
+          <NavLink href="/about" onClick={() => setIsOpen(false)}>
+            About
           </NavLink>
         </Stack>
       )}
@@ -80,8 +82,6 @@ interface NavLinkProps {
 
 const NavLink: React.FC<NavLinkProps> = ({ href, children, onClick }) => (
   <Link href={href} onClick={onClick}>
-    <Button variant="ghost" _hover={{ bg: "gray.700" }}>
-      {children}
-    </Button>
+    <Text color="white">{children}</Text>
   </Link>
 );

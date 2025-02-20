@@ -37,9 +37,9 @@ resources:
               S3OriginConfig:
                 OriginAccessIdentity: ""
           CustomErrorResponses:
-            ErrorCode: 403
-            ResponseCode: 200
-            ResponsePagePath: /index.html
+            - ErrorCode: 403
+              ResponseCode: 200
+              ResponsePagePath: /index.html
 
     Route53Record:
       Type: AWS::Route53::RecordSet
