@@ -109,9 +109,25 @@ def download_and_write_to_s3(url):
         
         file_name = name
         print(f"uploading {name} to s3")
-        resp = s3.put_object(Bucket=os.environ["BUCKET_NAME"], Key=file_name, Body=upload_data)
-        
+        if not object_exists(s3, os.environ["BUCKET_NAME"], file_name, response ):
+            resp = s3.put_object(Bucket=os.environ["BUCKET_NAME"], Key=file_name, Body=upload_data, Metadata={
+                "download_url" : url,
+                "Last-Modified" : response.headers.get("Last-Modified")
+            })
+            print(resp)
     else:
         print(f"unable to download {name}")
+
+
+def object_exists(s3, bucket_name, object_key, response):
+    try:
+        obj = s3.head_object(Bucket=bucket_name, Key=object_key)
+    except: 
+        return False
+        
+    metadata =  obj.get("Metadata") 
+    
+    
+    return metadata.get("Last-Modified") == response.headers.get("Last-Modified")
 
     

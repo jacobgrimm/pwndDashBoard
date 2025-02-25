@@ -21,4 +21,4 @@ COPY ./api/get_region.py /app/get_region.py
 EXPOSE 8000
 
 # Command to run the application
-CMD ["/bin/sh", "-c", "echo \"$DB_NAME\" > /app/db_name.txt && uvicorn app:app --host 0.0.0.0 --port 8000"]
+CMD ["/bin/sh", "-c", "echo \"$DB_NAME\" > /app/db_name.txt && nohup uvicorn app:app --host 0.0.0.0 --port 8000"]

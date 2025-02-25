@@ -26,7 +26,8 @@ functions:
           existing: true
   scrape_files_to_s3:
     handler: lambdas/download_combolist.lambda_handler
-    timeout: 3000
+    timeout: 500
+    memorySize: 2000
     events:
       - schedule: rate(240 hours)
 
@@ -203,7 +204,7 @@ resources:
             cd app
             sudo service docker start
             sudo usermod -a -G docker ec2-user
-            sudo docker run -d --name mycontainer -p 8000:8000 myimage -e DB_NAME=${self:custom.tableName}
+            sudo docker run -d --name fastapicontainer -p 8000:8000 -e DB_NAME=${self:custom.tableName}  my-fastapi-app
 
         IamInstanceProfile: !Ref Ec2InstanceProfile
     Ec2InstanceProfile:
@@ -241,3 +242,5 @@ custom:
 
 plugins:
   - serverless-python-requirements
+package:
+  individually: true
