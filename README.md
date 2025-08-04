@@ -76,7 +76,7 @@ Success! Your site should be available at http://pwnd-s3-bucket-creator-prod-sta
 
 
 ## **API Usage**
-<Coming Soon>
+<Coming Soon!!!>
 
 ### **Accesssing the API**
 At the end of the deployment, in the same message as the static website's location, there should also be an output explaining what the API's url is. 
