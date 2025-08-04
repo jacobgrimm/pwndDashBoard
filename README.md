@@ -106,6 +106,8 @@ There are 5 possible Query parameters you can send.
 
 ```last_evaluated_key```: Typically used for paginated requests and will be recieved from prior request to same endpoint query.
 
+<next comment>?
+
 #### **Note**
 
 ```limit``` and ```last_evaluated_key```: Allowed only for mode=scan or mode=domain.
